@@ -1,0 +1,32 @@
+p-menubar {
+    background-color: #ffffff;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+      max-height: 500px; /* Adjust height */
+      overflow-y: auto; /* Enable scrolling */
+    
+    
+  
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+  
+      .pi-user {
+        font-size: 1.5rem;
+        color: #007bff;
+      }
+  
+      .user-role {
+        font-weight: bold;
+      }
+  
+      small {
+        display: block;
+        font-size: 0.75rem;
+        color: gray;
+      }
+    }
+  }
+  

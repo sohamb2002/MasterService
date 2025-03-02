@@ -1,0 +1,117 @@
+<div class="p-m-4">
+  <!-- Top Bar with Create Button -->
+  <div class="top-bar">
+   
+    <button pButton type="button" label="Create SAO" icon="pi pi-plus" (click)="openDialog()"></button>
+  </div>
+
+  <!-- Table with Pagination -->
+  <p-table
+    [value]="saos"
+    class="p-mt-3"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 20, 50]"
+    [loading]="loading"
+  >
+    <!-- Table Header -->
+    <ng-template pTemplate="header">
+      <tr>
+        <th>SAO Name</th>
+        <th>SAO Code</th>
+        <th>Next Level Code</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+
+    <!-- Table Body -->
+    <ng-template pTemplate="body" let-sao let-i="rowIndex">
+      <tr>
+        <td>{{ sao.name }}</td>
+        <td>{{ sao.code }}</td>
+        <td>{{ sao.nextLevelCode }}</td>
+        <td class="actions-cell">
+          <button
+            pButton
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-warning"
+            (click)="openDialog(true, i)"
+          ></button>
+          <button
+            pButton
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger"
+            (click)="deleteSao(i)"
+          ></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <!-- Loading Spinner -->
+    <ng-template pTemplate="loadingbody">
+      <tr>
+        <td colspan="4" class="text-center">
+          <p-progressSpinner *ngIf="loading"></p-progressSpinner>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Dialog for Create/Edit SAO -->
+  <p-dialog
+    [header]="isEditMode ? 'Edit SAO' : 'Create SAO'"
+    [(visible)]="displayDialog"
+    [modal]="true"
+    [closable]="false"
+    [style]="{ width: '450px' }"
+  >
+    <div class="p-fluid">
+      <!-- SAO Name -->
+      <div class="p-field">
+        <label for="name">SAO Name</label>
+        <input id="name" type="text" pInputText [(ngModel)]="sao.name" />
+      </div>
+
+      <!-- SAO Code -->
+      <div class="p-field">
+        <label for="code">SAO Code</label>
+        <input id="code" type="text" pInputText [(ngModel)]="sao.code" />
+      </div>
+
+      <!-- Next Level Code Dropdown -->
+      <div class="p-field">
+        <label for="nextLevelCode">Next Level Code</label>
+        <p-dropdown
+        id="nextLevelCode"
+        [options]="saoCodes"
+        [(ngModel)]="sao.nextLevelCode"
+        placeholder="Select Next Level Code"
+        scrollHeight="250px"
+      >
+      </p-dropdown>
+      </div>
+    </div>
+    <br>
+    <br>
+    <br><br><br>
+<div>
+  <p-footer>
+    <button
+      pButton
+      icon="pi pi-check"
+      [label]="isEditMode ? 'Update' : 'Create'"
+      (click)="saveSao()"
+    ></button>
+    <button
+      pButton
+      label="Cancel"
+      icon="pi pi-times"
+      class="p-button-secondary"
+      (click)="displayDialog = false"
+    ></button>
+  </p-footer>
+</div>
+    <!-- Dialog Footer -->
+   
+  </p-dialog>
+</div>
