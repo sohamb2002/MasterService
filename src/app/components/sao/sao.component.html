@@ -1,8 +1,20 @@
 <div class="p-m-4">
-  <!-- Top Bar with Create Button -->
+  <!-- Top Bar with Create Button and Search/Filter -->
   <h2 class="p-text-bold p-mb-0">Manage SAOs</h2>
   <div class="top-bar">
-   
+    <input
+      pInputText
+      type="text"
+      placeholder="Search SAOs..."
+      [(ngModel)]="searchQuery"
+      (input)="onSearchChange()"
+    />
+    <p-dropdown
+      [options]="filterOptions"
+      [(ngModel)]="selectedFilter"
+      placeholder="Filter by..."
+      (onChange)="onFilterChange()"
+    ></p-dropdown>
     <button pButton type="button" label="Create SAO" icon="pi pi-plus" (click)="openDialog()"></button>
   </div>
 
@@ -83,36 +95,35 @@
       <div class="p-field">
         <label for="nextLevelCode">Next Level Code</label>
         <p-dropdown
-        id="nextLevelCode"
-        [options]="saoCodes"
-        [(ngModel)]="sao.nextLevelCode"
-        placeholder="Select Next Level Code"
-        scrollHeight="250px"
-      >
-      </p-dropdown>
+          id="nextLevelCode"
+          [options]="saoCodes"
+          [(ngModel)]="sao.nextLevelCode"
+          placeholder="Select Next Level Code"
+          scrollHeight="250px"
+        ></p-dropdown>
       </div>
     </div>
-    <br>
-    <br>
-    <br><br><br>
-<div>
-  <p-footer>
-    <button
-      pButton
-      icon="pi pi-check"
-      [label]="isEditMode ? 'Update' : 'Create'"
-      (click)="saveSao()"
-    ></button>
-    <button
-      pButton
-      label="Cancel"
-      icon="pi pi-times"
-      class="p-button-secondary"
-      (click)="displayDialog = false"
-    ></button>
-  </p-footer>
-</div>
-    <!-- Dialog Footer -->
-   
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <div>
+      <p-footer>
+        <button
+          pButton
+          icon="pi pi-check"
+          [label]="isEditMode ? 'Update' : 'Create'"
+          (click)="saveSao()"
+        ></button>
+        <button
+          pButton
+          label="Cancel"
+          icon="pi pi-times"
+          class="p-button-secondary"
+          (click)="displayDialog = false"
+        ></button>
+      </p-footer>
+    </div>
   </p-dialog>
 </div>

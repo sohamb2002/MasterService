@@ -19,14 +19,14 @@ import { FormGroup } from "@angular/forms";
     constructor(private http: HttpClient) { }
 
     // In your user-service.service.ts
-getAllany(search: string = '', filter: string = ''): Observable<any> {
-  return this.http.get<any>(`${this.url}SaoMaster`, {
-      params: {
+    getAllany(search: string = '', filter: string = ''): Observable<any> {
+      return this.http.get<any>(`${this.url}SaoMaster`, {
+        params: {
           search: search,
-          filter: filter
-      }
-  });
-}
+          filter: filter,
+        },
+      });
+    }
 
 
       public AddSao(SaoData: any): Observable<any> {

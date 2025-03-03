@@ -4,13 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
-import { DropdownModule } from 'primeng/dropdown'; // Import DropdownModule
+import { DropdownModule } from 'primeng/dropdown';
 import { SaoService } from '../../service/sao.service';
 import { HttpClientModule } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import Swal from 'sweetalert2';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { SaoCodes } from './sao-codes.enum'; // Import the enum
+import { SaoCodes } from './sao-codes.enum';
 
 @Component({
   selector: 'app-sao',
@@ -23,11 +23,11 @@ import { SaoCodes } from './sao-codes.enum'; // Import the enum
     FormsModule,
     HttpClientModule,
     ProgressSpinnerModule,
-    DropdownModule // Add DropdownModule
+    DropdownModule,
   ],
   providers: [SaoService],
   templateUrl: './sao.component.html',
-  styleUrls: ['./sao.component.scss']
+  styleUrls: ['./sao.component.scss'],
 })
 export class SaoComponent implements OnInit {
   saos: any[] = [];
@@ -35,7 +35,15 @@ export class SaoComponent implements OnInit {
   isEditMode: boolean = false;
   sao: any = {};
   loading: boolean = false;
-  saoCodes = Object.values(SaoCodes); // Get all enum values
+  saoCodes = Object.values(SaoCodes);
+  searchQuery: string = '';
+  selectedFilter: string = '';
+  filterOptions: any[] = [
+    { label: 'All', value: '' },
+    { label: 'Code', value: 'code' },
+    { label: 'Name', value: 'name' },
+    { label: 'Next Level Code', value: 'nextLevelCode' },
+  ];
 
   constructor(private saoService: SaoService) {}
 
@@ -46,7 +54,7 @@ export class SaoComponent implements OnInit {
   fetchSaos(): void {
     this.loading = true;
 
-    this.saoService.getAllany().subscribe({
+    this.saoService.getAllany(this.searchQuery, this.selectedFilter).subscribe({
       next: (data) => {
         this.saos = data
           .filter((sao: any) => !sao.isDeleted)
@@ -62,8 +70,16 @@ export class SaoComponent implements OnInit {
           title: 'Error!',
           text: 'Failed to fetch SAOs. Please try again.',
         });
-      }
+      },
     });
+  }
+
+  onSearchChange(): void {
+    this.fetchSaos();
+  }
+
+  onFilterChange(): void {
+    this.fetchSaos();
   }
 
   openDialog(isEdit: boolean = false, index?: number): void {
@@ -72,11 +88,11 @@ export class SaoComponent implements OnInit {
 
     if (isEdit && index !== undefined) {
       const selectedSao = this.saos[index];
-      this.sao = { 
-        id: selectedSao.id, 
-        code: selectedSao.code, 
-        name: selectedSao.name, 
-        nextLevelCode: selectedSao.nextLevelCode 
+      this.sao = {
+        id: selectedSao.id,
+        code: selectedSao.code,
+        name: selectedSao.name,
+        nextLevelCode: selectedSao.nextLevelCode,
       };
     } else {
       this.sao = {
@@ -90,9 +106,9 @@ export class SaoComponent implements OnInit {
   deleteSao(index: number): void {
     const saoId = this.saos[index].id;
     const deletedSao = this.saos[index]; // Store for rollback
-  
+
     this.saos.splice(index, 1); // Optimistically update UI
-  
+
     this.saoService.softDeleteSao(saoId).subscribe({
       next: () => {
         Swal.fire({
@@ -109,10 +125,9 @@ export class SaoComponent implements OnInit {
           title: 'Error!',
           text: 'Failed to delete SAO. Please try again.',
         });
-      }
+      },
     });
   }
-  
 
   saveSao(): void {
     if (this.isEditMode) {
@@ -139,7 +154,7 @@ export class SaoComponent implements OnInit {
             title: 'Error!',
             text: 'Failed to update SAO. Please try again.',
           });
-        }
+        },
       });
     } else {
       this.saoService.AddSao(this.sao).subscribe({
@@ -161,7 +176,7 @@ export class SaoComponent implements OnInit {
             title: 'Error!',
             text: 'Failed to create SAO. Please try again.',
           });
-        }
+        },
       });
     }
   }
