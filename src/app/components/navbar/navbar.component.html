@@ -16,6 +16,12 @@
               (click)="onLogout()" 
               title="Logout">
         </span>
+     
+          
+        <button class="theme-toggle-btn" (click)="toggleTheme()">
+          <i class="pi" [ngClass]="{'pi-moon': isDarkMode(), 'pi-sun': !isDarkMode()}"></i>
+        </button>
+        
       </div>
     </ng-template>
   </p-menubar>

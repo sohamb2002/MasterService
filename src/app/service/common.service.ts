@@ -12,11 +12,11 @@ export class CommonService {
   constructor(private http: HttpClient) {}
 
   getAllFinancialYears(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}FinancialYearMaster`);
+    return this.http.get<any[]>(`${this.apiUrl}FinancialYearMST/FinancialYear`);
   }
 
   getAllHOAs(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}HOAMaster`);
+    return this.http.get<any[]>(`${this.apiUrl}HOA/get-hoa-details`);
   }
 
   getAllTreasuries(): Observable<any[]> {
@@ -24,47 +24,47 @@ export class CommonService {
   }
 
   getAllDepartments(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}Department`);
+    return this.http.get<any[]>(`${this.apiUrl}DepartmentsMaster`);
   }
 
   getAllDesignations(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}Designation`);
+    return this.http.get<any[]>(`${this.apiUrl}DesignationMaster`);
   }
 
   getAllMajorHeads(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}MajorHead`);
+    return this.http.get<any[]>(`${this.apiUrl}MajorHeadsMaster`);
   }
 
   getAllSubMajorHeads(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}SubMajorHead`);
+    return this.http.get<any[]>(`${this.apiUrl}SubMajorHeadsMaster`);
   }
 
   getAllMinorHeads(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}MinorHead`);
+    return this.http.get<any[]>(`${this.apiUrl}MinorHeadMaster`);
   }
 
   getAllSchemeHeads(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}SchemeHead`);
+    return this.http.get<any[]>(`${this.apiUrl}SchemeHeadsMaster`);
   }
 
   getAllDetailHeads(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}DetailHead`);
+    return this.http.get<any[]>(`${this.apiUrl}DetailHeadsMaster`);
   }
 
   getAllSubDetailHeads(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}SubDetailHead`);
+    return this.http.get<any[]>(`${this.apiUrl}SubDetailHeadsMaster`);
   }
 
   getAllSchemeTypes(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}SchemeType`);
+    return this.http.get<any[]>(`${this.apiUrl}SchemeType/get-scheme-types`);
   }
 
   getAllSubSchemeTypes(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}SubSchemeType`);
+    return this.http.get<any[]>(`${this.apiUrl}SubSchemeType/get-sub-scheme-types`);
   }
 
   getAllSAOLevels(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}SAOLevelMaster`);
+    return this.http.get<any[]>(`${this.apiUrl}SaoLevelMaster`);
   }
 
   getAllAdmissibleReappropriations(): Observable<any[]> {
