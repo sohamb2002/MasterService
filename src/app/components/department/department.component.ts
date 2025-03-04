@@ -5,11 +5,14 @@ import { TableModule } from 'primeng/table';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { DropdownModule } from 'primeng/dropdown';
+import { FormsModule } from '@angular/forms';
+
 
 @Component({
   selector: 'app-department',
   standalone: true,
-  imports: [TableModule, ProgressSpinnerModule, CommonModule, HttpClientModule],
+  imports: [TableModule, ProgressSpinnerModule, CommonModule, HttpClientModule,DropdownModule,FormsModule],
   providers: [CommonService],
   templateUrl: './department.component.html',
   styleUrl: './department.component.scss'
@@ -17,6 +20,14 @@ import { HttpClientModule } from '@angular/common/http';
 export class DepartmentComponent {
   departments: any[] = [];
   loading: boolean = false;
+  searchQuery: string ='';
+  selectedFilter: string ='';
+  filterOptions: any[] = [
+    { label: 'All', value: '' },
+    { label: 'Name', value:'name' },
+    { label: 'Code', value: 'code' },
+    { label: 'DemandCode', value: 'demandCode' },
+  ];
 
   constructor(private commonService: CommonService) {}
 
@@ -27,7 +38,7 @@ export class DepartmentComponent {
   fetchDepartments(): void {
     this.loading = true;
 
-    this.commonService.getAllDepartments().subscribe({
+    this.commonService.getAllDepartments(this.searchQuery,this.selectedFilter).subscribe({
       next: (data) => {
         this.departments = data
           .filter((dept: any) => !dept.isDeleted)
@@ -45,5 +56,13 @@ export class DepartmentComponent {
         });
       }
     });
+  }
+
+  onSearchChange(): void {
+    this.fetchDepartments();
+  }
+
+  onFilterChange(): void {
+    this.fetchDepartments();
   }
 }

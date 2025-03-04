@@ -28,8 +28,13 @@ export class CommonService {
     });
   }
 
-  getAllDepartments(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}DepartmentsMaster`);
+  getAllDepartments(search:string='',filter:string=''): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}DepartmentsMaster`,{
+      params: {
+        search: search,
+        filter: filter
+      }
+    });
   }
 
   getAllDesignations(): Observable<any[]> {

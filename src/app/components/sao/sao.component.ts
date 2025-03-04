@@ -47,6 +47,7 @@ export class SaoComponent implements OnInit {
     { label: 'Next Level Code', value: 'nextLevelCode' },
   ];
   levelOptions: any[] = [
+    {label:'ALL',value:null},
     {label:'HOD',value:2},
     {label:'RO',value:3},
     {label:'DO',value:4},
@@ -90,17 +91,26 @@ export class SaoComponent implements OnInit {
     this.fetchSaos();
   }
   onLevelChange(): void {
-    if (this.selectedLevel) {
-      this.loading = true;
-      this.saoService['getSaosByLevel'](this.selectedLevel).subscribe({
-        next: (data:any) => {
-          this.saos = data.filter((sao: any) => !sao.isDeleted)
+    this.loading = true;
+  
+    if (this.selectedLevel === null) { // 👈 Check if "All" is selected
+      this.fetchSaos(); // Fetch all SAOs when "All" is selected
+    } else {
+      this.saoService.getSaosByLevel(this.selectedLevel).subscribe({
+        next: (response: any) => {
+          // Ensure response follows expected structure
+          const saosData = response?.result ?? []; // Extract result safely
+  
+          this.saos = saosData
+            .filter((sao: any) => !sao.isDeleted)
             .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
+  
           this.loading = false;
         },
-        error: (error:any) => {
+        error: (error: any) => {
           console.error('Error fetching SAOs by level:', error);
           this.loading = false;
+  
           Swal.fire({
             icon: 'error',
             title: 'Error!',

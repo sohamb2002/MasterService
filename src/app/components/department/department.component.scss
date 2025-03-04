@@ -139,3 +139,21 @@
         white-space: nowrap;
     }
 }
+.search-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+    input[pInputText] {
+      padding: 0.8rem 1rem;
+      font-size: 1rem;
+      color: black;
+      border: 2px solid #00dbde;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgb(0, 0, 0);  // Ensuring text is visible
+      outline: none;
+      transition: all 0.3s ease-in-out;
+      width: 250px;}
