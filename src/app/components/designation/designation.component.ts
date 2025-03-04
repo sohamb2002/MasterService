@@ -5,10 +5,12 @@ import { TableModule } from 'primeng/table';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+import { DropdownModule } from 'primeng/dropdown';
 @Component({
   selector: 'app-designation',
   standalone: true,
-  imports: [TableModule, ProgressSpinnerModule, CommonModule, HttpClientModule],
+  imports: [TableModule, ProgressSpinnerModule, CommonModule, HttpClientModule,FormsModule,DropdownModule],
   providers: [CommonService],
   templateUrl: './designation.component.html',
   styleUrl: './designation.component.scss'
@@ -16,6 +18,11 @@ import { HttpClientModule } from '@angular/common/http';
 export class DesignationComponent {
 items: any[] = [];
   loading: boolean = false;
+  searchQuery: string ='';
+  selectedFilter: string ='';
+  filterOptions: any[] = [
+    { label: 'Designation', value: 'name' },
+  ];
 
   constructor(private commonService: CommonService) {}
 
@@ -26,7 +33,7 @@ items: any[] = [];
   fetchDesignations(): void {
     this.loading = true;
   
-    this.commonService.getAllDesignations().subscribe({
+    this.commonService.getAllDesignations(this.searchQuery,this.selectedFilter).subscribe({
       next: (response: any) => {
         // Extract the `result` array from the response
         const data = Array.isArray(response) ? response : response?.data || [];
@@ -56,5 +63,12 @@ items: any[] = [];
         });
       },
     });
+  }
+  onSearchChange(): void {
+    this.fetchDesignations();
+  }
+
+  onFilterChange(): void {
+    this.fetchDesignations();
   }
 }

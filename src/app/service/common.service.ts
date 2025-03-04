@@ -37,8 +37,13 @@ export class CommonService {
     });
   }
 
-  getAllDesignations(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}DesignationMaster`);
+  getAllDesignations(search:string='',filter:string=''): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}DesignationMaster`,{
+      params: {
+        search: search,
+        filter: filter
+      }
+    });
   }
 
   getAllMajorHeads(): Observable<any[]> {
