@@ -27,7 +27,10 @@ import { FormGroup } from "@angular/forms";
         },
       });
     }
-
+    getSaosByLevel(level: number): Observable<any> {
+      return this.http.get<any>(`${this.url}SaoMaster/GetSaosByLevel/${level}`);
+    }
+  
 
       public AddSao(SaoData: any): Observable<any> {
         return this.http.post<any>(this.url+"SaoMaster",SaoData);  // Send plain object instead of FormGroup

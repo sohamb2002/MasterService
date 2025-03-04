@@ -12,8 +12,13 @@ export class DdoService {
   constructor(private http: HttpClient) {}
 
   // Fetch all DDOs
-  getAllDDOs(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl+"DdoMaster");
+  getAllDDOs(search:string='',filter:string=''): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl+"DdoMaster",{
+      params: {
+        search: search,
+        filter: filter
+      }
+    });
   }
 
   // Create a new DDO

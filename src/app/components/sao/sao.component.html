@@ -2,6 +2,14 @@
   <!-- Top Bar with Create Button and Search/Filter -->
   <h2 class="p-text-bold p-mb-0">Manage SAOs</h2>
   <div class="top-bar">
+  <div class="levelContainer">
+    <p-dropdown
+    [options]="levelOptions"
+    [(ngModel)]="selectedLevel"
+    placeholder="SaoLevels by..."
+    (onChange)="onLevelChange()"
+  ></p-dropdown>
+  </div>
     <input
       pInputText
       type="text"
@@ -15,6 +23,7 @@
       placeholder="Filter by..."
       (onChange)="onFilterChange()"
     ></p-dropdown>
+  
     <button pButton type="button" label="Create SAO" icon="pi pi-plus" (click)="openDialog()"></button>
   </div>
 

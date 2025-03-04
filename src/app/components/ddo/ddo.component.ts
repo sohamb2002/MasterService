@@ -8,6 +8,7 @@ import { DdoService } from '../../service/ddo.service';
 import { HttpClientModule } from '@angular/common/http';
 import Swal from 'sweetalert2';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'app-ddo',
@@ -20,6 +21,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
     FormsModule,
     HttpClientModule,
     ProgressSpinnerModule,
+    DropdownModule
   ],
   providers: [DdoService],
   templateUrl: './ddo.component.html',
@@ -31,6 +33,13 @@ export class DdoComponent implements OnInit {
   isEditMode: boolean = false; // Tracks if dialog is in edit mode
   ddo: any = {}; // Current DDO being edited/created
   loading: boolean = false; // Loading state
+  searchQuery: string = '';
+  selectedFilter: string = '';
+  filterOptions: any[] = [
+    { label: 'All', value: '' },
+    { label: 'TreasuryCode', value: 'treasurycode' },
+    { label: 'Designation', value: 'designation' },
+  ];
 
   constructor(private ddoService: DdoService) {}
 
@@ -41,7 +50,7 @@ export class DdoComponent implements OnInit {
   // Fetch DDOs from the backend
   fetchDDOs(): void {
     this.loading = true;
-    this.ddoService.getAllDDOs().subscribe({
+    this.ddoService.getAllDDOs(this.searchQuery,this.selectedFilter).subscribe({
       next: (data) => {
         this.ddoList = data;
         this.loading = false;
@@ -57,7 +66,13 @@ export class DdoComponent implements OnInit {
       },
     });
   }
+  onSearchChange(): void {
+    this.fetchDDOs();
+  }
 
+  onFilterChange(): void {
+    this.fetchDDOs();
+  }
   // Open dialog for create/edit
   openDialog(isEdit: boolean = false, index?: number): void {
     this.isEditMode = isEdit;

@@ -38,12 +38,20 @@ export class SaoComponent implements OnInit {
   saoCodes = Object.values(SaoCodes);
   searchQuery: string = '';
   selectedFilter: string = '';
+  selectedLevel: number | null = null;
+
   filterOptions: any[] = [
     { label: 'All', value: '' },
     { label: 'Code', value: 'code' },
     { label: 'Name', value: 'name' },
     { label: 'Next Level Code', value: 'nextLevelCode' },
   ];
+  levelOptions: any[] = [
+    {label:'HOD',value:2},
+    {label:'RO',value:3},
+    {label:'DO',value:4},
+    {label:'SDO',value:5}
+  ]
 
   constructor(private saoService: SaoService) {}
 
@@ -81,7 +89,28 @@ export class SaoComponent implements OnInit {
   onFilterChange(): void {
     this.fetchSaos();
   }
-
+  onLevelChange(): void {
+    if (this.selectedLevel) {
+      this.loading = true;
+      this.saoService['getSaosByLevel'](this.selectedLevel).subscribe({
+        next: (data:any) => {
+          this.saos = data.filter((sao: any) => !sao.isDeleted)
+            .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
+          this.loading = false;
+        },
+        error: (error:any) => {
+          console.error('Error fetching SAOs by level:', error);
+          this.loading = false;
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to fetch SAOs by level. Please try again.',
+          });
+        },
+      });
+    }
+  }
+  
   openDialog(isEdit: boolean = false, index?: number): void {
     this.isEditMode = isEdit;
     this.displayDialog = true;

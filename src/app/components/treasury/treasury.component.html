@@ -1,6 +1,20 @@
 <div class="treasury-container">
     <h2 class="title">Treasury List</h2>
-  
+    <div class="search-container">
+      <input
+        pInputText
+        type="text"
+        placeholder="Search DDOs..."
+        [(ngModel)]="searchQuery"
+        (input)="onSearchChange()"
+      />
+      <p-dropdown
+        [options]="filterOptions"
+        [(ngModel)]="selectedFilter"
+        placeholder="Filter by..."
+        (onChange)="onFilterChange()"
+      ></p-dropdown>
+    </div>
     <!-- Loading Spinner -->
     <p-progressSpinner *ngIf="loading" class="spinner"></p-progressSpinner>
   
