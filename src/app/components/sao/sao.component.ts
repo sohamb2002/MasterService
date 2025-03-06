@@ -8,9 +8,11 @@ import { DropdownModule } from 'primeng/dropdown';
 import { SaoService } from '../../service/sao.service';
 import { HttpClientModule } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { TagModule } from 'primeng/tag';
 import Swal from 'sweetalert2';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SaoCodes } from './sao-codes.enum';
+import { CommonService } from '../../service/common.service';
 
 @Component({
   selector: 'app-sao',
@@ -24,8 +26,10 @@ import { SaoCodes } from './sao-codes.enum';
     HttpClientModule,
     ProgressSpinnerModule,
     DropdownModule,
+    TableModule,
+    TagModule
   ],
-  providers: [SaoService],
+  providers: [SaoService,CommonService],
   templateUrl: './sao.component.html',
   styleUrls: ['./sao.component.scss'],
 })
@@ -39,6 +43,8 @@ export class SaoComponent implements OnInit {
   searchQuery: string = '';
   selectedFilter: string = '';
   selectedLevel: number | null = null;
+  levels:any[] = [];
+  
 
   filterOptions: any[] = [
     { label: 'All', value: '' },
@@ -46,18 +52,14 @@ export class SaoComponent implements OnInit {
     { label: 'Name', value: 'name' },
     { label: 'Next Level Code', value: 'nextLevelCode' },
   ];
-  levelOptions: any[] = [
-    {label:'ALL',value:null},
-    {label:'HOD',value:2},
-    {label:'RO',value:3},
-    {label:'DO',value:4},
-    {label:'SDO',value:5}
-  ]
 
-  constructor(private saoService: SaoService) {}
+  levelOptions:any[] = [];
+
+  constructor(private saoService: SaoService,private commonService:CommonService) {}
 
   ngOnInit(): void {
     this.fetchSaos();
+    this.getSaoLevels();
   }
 
   fetchSaos(): void {
@@ -66,7 +68,7 @@ export class SaoComponent implements OnInit {
     this.saoService.getAllany(this.searchQuery, this.selectedFilter).subscribe({
       next: (data) => {
         this.saos = data
-          .filter((sao: any) => !sao.isDeleted)
+          .filter((sao: any) => !sao.isdeleted)
           .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
 
         this.loading = false;
@@ -82,45 +84,101 @@ export class SaoComponent implements OnInit {
       },
     });
   }
-
-  onSearchChange(): void {
+  
+  getSaoLevels(): void {
+    this.commonService.getAllSAOLevels().subscribe({
+      next: (response:any) => {
+        console.log("API Response:", response);
+  
+        if (response && Array.isArray(response.result)) {
+          this.levels = response.result;
+          this.levelOptions = this.levels.map((level: any) => ({
+            label: level.name, // Use 'name' instead of 'code' for better UX
+            value: level.code, // Value should remain as 'code'
+          }));
+        } else {
+          console.error("Invalid API Response format:", response);
+          this.levels = [];
+          this.levelOptions = [];
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching SAO Levels:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Failed to fetch SAO Levels. Please try again.',
+        });
+      }
+    });
+  }
+  
+  
+    onSearchChange(): void {
     this.fetchSaos();
   }
 
   onFilterChange(): void {
     this.fetchSaos();
   }
-  onLevelChange(): void {
+  onLevelChange(event: any): void {
     this.loading = true;
-  
-    if (this.selectedLevel === null) { // 👈 Check if "All" is selected
-      this.fetchSaos(); // Fetch all SAOs when "All" is selected
-    } else {
-      this.saoService.getSaosByLevel(this.selectedLevel).subscribe({
-        next: (response: any) => {
-          // Ensure response follows expected structure
-          const saosData = response?.result ?? []; // Extract result safely
-  
-          this.saos = saosData
-            .filter((sao: any) => !sao.isDeleted)
-            .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
-  
-          this.loading = false;
-        },
-        error: (error: any) => {
-          console.error('Error fetching SAOs by level:', error);
-          this.loading = false;
-  
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'Failed to fetch SAOs by level. Please try again.',
-          });
-        },
-      });
+    
+    const selectedCode = event?.value; // Extract selected code
+    console.log("Selected Level Code:", selectedCode);
+    
+    if (!selectedCode) {
+      console.warn("No valid selection made.");
+      this.loading = false;
+      return;
     }
+  
+    this.saoService['GetSaosByLevelValue'](selectedCode).subscribe({
+      next: (sao: any) => {
+        this.saos = Array.isArray(sao.result) ? sao.result : [];
+        console.log("SAO List:", this.saos);
+        this.loading = false;
+      },
+      error: (error: any) => {
+        console.error("Error fetching SAO:", error);
+        this.loading = false;
+        Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: "Failed to fetch SAO. Please try again.",
+        });
+      },
+    });
   }
   
+  
+
+
+confirmToggleStatus(sao: any) {
+  Swal.fire({
+    title: `Are you sure?`,
+    text: `You are about to mark this SAO as ${sao.isactive ? 'Inactive' : 'Active'}.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: sao.isactive ? '#d33' : '#28a745',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: sao.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Toggle status
+      sao.isactive = !sao.isactive;
+
+      // Show success message
+      Swal.fire({
+        title: 'Updated!',
+        text: `The SAO has been marked as ${sao.isactive ? 'Active' : 'Inactive'}.`,
+        icon: 'success',
+        timer: 1500
+      });
+    }
+  });
+}
+
   openDialog(isEdit: boolean = false, index?: number): void {
     this.isEditMode = isEdit;
     this.displayDialog = true;
@@ -146,6 +204,7 @@ export class SaoComponent implements OnInit {
     const saoId = this.saos[index].id;
     const deletedSao = this.saos[index]; // Store for rollback
 
+    
     this.saos.splice(index, 1); // Optimistically update UI
 
     this.saoService.softDeleteSao(saoId).subscribe({
@@ -167,6 +226,7 @@ export class SaoComponent implements OnInit {
       },
     });
   }
+  
 
   saveSao(): void {
     if (this.isEditMode) {

@@ -27,7 +27,7 @@ import { FormGroup } from "@angular/forms";
         },
       });
     }
-    getSaosByLevel(level: number): Observable<any> {
+    GetSaosByLevelValue(level: number): Observable<any> {
       return this.http.get<any>(`${this.url}SaoMaster/GetSaosByLevelValue/${level}`);
     }
   

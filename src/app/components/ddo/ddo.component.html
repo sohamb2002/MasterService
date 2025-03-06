@@ -17,8 +17,18 @@
           placeholder="Filter by..."
           (onChange)="onFilterChange()"
         ></p-dropdown>
-      </div>
       
+      </div>
+      <p-dropdown 
+      id="treasuryCode"
+      [options]="TreasuryCodeOptions"
+      [(ngModel)]="ddo.treasuryCode"
+      placeholder="Select Treasury Code"
+      [filter]="true"
+      filterPlaceholder="Search Treasury Code"
+      (onChange)="getDdoByTreasuryCode(ddo.treasuryCode)"
+    ></p-dropdown>
+    
       <button
         pButton
         type="button"
@@ -42,9 +52,10 @@
       <ng-template pTemplate="header">
         <tr>
           <th class="custom-th">Treasury Code</th>
-          <th class="custom-th">Code</th>
+          <th class="custom-th">Ddo Code</th>
           <th class="custom-th">Designation</th>
           <th class="custom-th">Address</th>
+          <th class="custom-th">Status</th>
           <th class="custom-th actions-header">Actions</th>
         </tr>
       </ng-template>
@@ -53,9 +64,18 @@
       <ng-template pTemplate="body" let-ddo let-i="rowIndex">
         <tr class="custom-row">
           <td>{{ ddo.treasuryCode }}</td>
-          <td>{{ ddo.code }}</td>
+          <td>{{ ddo.ddoCode }}</td>
           <td>{{ ddo.designation }}</td>
           <td>{{ ddo.address }}</td>
+          <td>
+            <p-tag 
+                (click)="confirmToggleStatus(ddo)" 
+                [value]="ddo.isactive ? 'Active' : 'Inactive'" 
+                [severity]="ddo.isactive ? 'success' : 'danger'" 
+                [style]="{ cursor: 'pointer' }"
+            >
+            </p-tag>
+        </td>
           <td class="actions-cell">
             <button
               pButton
@@ -96,13 +116,23 @@
     >
       <div class="p-fluid">
         <div class="p-field">
+
           <label for="treasuryCode">Treasury Code</label>
-          <input id="treasuryCode" type="text" pInputText [(ngModel)]="ddo.treasuryCode" class="custom-input" />
+          <p-dropdown 
+          id="treasuryCode"
+          [options]="TreasuryCodeOptions"
+          [(ngModel)]="ddo.treasuryCode"
+          placeholder="Select Treasury Code"
+          [filter]="true"
+          filterPlaceholder="Search Treasury Code"
+        ></p-dropdown>
+        
+        
         </div>
   
         <div class="p-field">
-          <label for="code">Code</label>
-          <input id="code" type="text" pInputText [(ngModel)]="ddo.code" class="custom-input" />
+          <label for="code">DdoCode</label>
+          <input id="code" type="text" pInputText [(ngModel)]="ddo.ddoCode" class="custom-input" />
         </div>
   
         <div class="p-field">

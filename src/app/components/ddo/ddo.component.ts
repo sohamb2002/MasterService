@@ -9,6 +9,8 @@ import { HttpClientModule } from '@angular/common/http';
 import Swal from 'sweetalert2';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DropdownModule } from 'primeng/dropdown';
+import { TagModule } from 'primeng/tag';
+import { CommonService } from '../../service/common.service';
 
 @Component({
   selector: 'app-ddo',
@@ -21,9 +23,10 @@ import { DropdownModule } from 'primeng/dropdown';
     FormsModule,
     HttpClientModule,
     ProgressSpinnerModule,
-    DropdownModule
+    DropdownModule,
+    TagModule
   ],
-  providers: [DdoService],
+  providers: [DdoService,CommonService],
   templateUrl: './ddo.component.html',
   styleUrls: ['./ddo.component.scss'],
 })
@@ -32,6 +35,7 @@ export class DdoComponent implements OnInit {
   displayDialog: boolean = false; // Controls dialog visibility
   isEditMode: boolean = false; // Tracks if dialog is in edit mode
   ddo: any = {}; // Current DDO being edited/created
+  ddos:any[] = []; //
   loading: boolean = false; // Loading state
   searchQuery: string = '';
   selectedFilter: string = '';
@@ -40,11 +44,16 @@ export class DdoComponent implements OnInit {
     { label: 'TreasuryCode', value: 'treasurycode' },
     { label: 'Designation', value: 'designation' },
   ];
+  selectedCode: string ='';
+  codes: any[] = []; //
+  TreasuryCodeOptions: any[]=[];
 
-  constructor(private ddoService: DdoService) {}
+  constructor(private ddoService: DdoService, private commonService: CommonService) {}
+
 
   ngOnInit(): void {
     this.fetchDDOs();
+    this.getTreasuryCodes();
   }
 
   // Fetch DDOs from the backend
@@ -52,7 +61,11 @@ export class DdoComponent implements OnInit {
     this.loading = true;
     this.ddoService.getAllDDOs(this.searchQuery,this.selectedFilter).subscribe({
       next: (data) => {
-        this.ddoList = data;
+        this.ddoList = data
+        .filter((ddo: any) => !ddo.isdeleted)
+        .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
+      
+        
         this.loading = false;
       },
       error: (error) => {
@@ -62,6 +75,49 @@ export class DdoComponent implements OnInit {
           icon: 'error',
           title: 'Error!',
           text: 'Failed to fetch DDOs. Please try again.',
+        });
+      },
+    });
+  }
+  getTreasuryCodes(): void {
+    this.commonService.getAllTreasuries().subscribe({
+      next: (codes) => {
+
+console.log(this.codes);
+
+        this.TreasuryCodeOptions = codes.map((code: any) => ({
+          label: code.code, 
+          value: code.code
+        }));
+      },
+      error: (error) => {
+        console.error('Error fetching Treasury Codes:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Failed to fetch Treasury Codes. Please try again.',
+        });
+      }
+    });
+  }
+  getDdoByTreasuryCode(code: any): void{
+    this.loading = true;
+    this.ddoService.getDDOByTreasuryCode(code).subscribe({
+      next: (ddo) => {
+        console.log(code);
+        
+        this.ddoList = ddo;
+        console.log(this.ddoList);
+        
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error fetching DDO:', error);
+        this.loading = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Failed to fetch DDO. Please try again.',
         });
       },
     });
@@ -79,10 +135,19 @@ export class DdoComponent implements OnInit {
     this.displayDialog = true;
 
     if (isEdit && index !== undefined) {
-      const selectedDDO = this.ddoList[index];
-      this.ddo = { ...selectedDDO }; // Copy selected DDO for editing
+      const selectedddo = this.ddoList[index];
+      this.ddo = {
+        id: selectedddo.id,
+        code: selectedddo.code,
+        name: selectedddo.name,
+        nextLevelCode: selectedddo.nextLevelCode,
+      };
     } else {
-      this.ddo = {}; // Reset for create mode
+      this.ddo = {
+        code: '',
+        name: '',
+        nextLevelCode: '',
+      };
     }
   }
 
@@ -90,74 +155,115 @@ export class DdoComponent implements OnInit {
   deleteDDO(index: number): void {
     const ddoId = this.ddoList[index].id;
     const deletedDDO = this.ddoList[index]; // Store for rollback
-
-    this.ddoList.splice(index, 1); // Optimistically update UI
-
-    this.ddoService.deleteDDO(ddoId).subscribe({
-      next: () => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: 'DDO deleted successfully.',
+  
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You won\'t be able to revert this!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.ddoList.splice(index, 1); // Optimistically update UI
+  
+        this.ddoService.SoftDeleteDDO(ddoId).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: 'DDO deleted successfully.',
+            });
+          },
+          error: (error) => {
+            console.error('Error deleting DDO:', error);
+            this.ddoList.splice(index, 0, deletedDDO); // Rollback UI change
+            Swal.fire({
+              icon: 'error',
+              title: 'Error!',
+              text: 'Failed to delete DDO. Please try again.',
+            });
+          },
         });
-      },
-      error: (error) => {
-        console.error('Error deleting DDO:', error);
-        this.ddoList.splice(index, 0, deletedDDO); // Rollback UI change
-        Swal.fire({
-          icon: 'error',
-          title: 'Error!',
-          text: 'Failed to delete DDO. Please try again.',
-        });
-      },
+      }
     });
   }
+  
+confirmToggleStatus(ddo: any) {
+  Swal.fire({
+    title: `Are you sure?`,
+    text: `You are about to mark this ddo as ${ddo.isactive ? 'Inactive' : 'Active'}.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: ddo.isactive ? '#d33' : '#28a745',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: ddo.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Toggle status
+      ddo.isactive = !ddo.isactive;
 
-  // Save DDO (create or update)
-  saveDDO(): void {
-    if (this.isEditMode) {
-      this.ddoService.updateDDO(this.ddo).subscribe({
-        next: (updatedDDO) => {
-          const index = this.ddoList.findIndex((d) => d.id === updatedDDO.id);
-          if (index !== -1) {
-            this.ddoList[index] = updatedDDO; // Update the list
-          }
-          this.displayDialog = false;
-          Swal.fire({
-            icon: 'success',
-            title: 'Updated!',
-            text: 'DDO updated successfully.',
-          });
-        },
-        error: (error) => {
-          console.error('Error updating DDO:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'Failed to update DDO. Please try again.',
-          });
-        },
-      });
-    } else {
-      this.ddoService.createDDO(this.ddo).subscribe({
-        next: (newDDO) => {
-          this.ddoList.push(newDDO); // Add new DDO to the list
-          this.displayDialog = false;
-          Swal.fire({
-            icon: 'success',
-            title: 'Created!',
-            text: 'DDO created successfully.',
-          });
-        },
-        error: (error) => {
-          console.error('Error creating DDO:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'Failed to create DDO. Please try again.',
-          });
-        },
+      // Show success message
+      Swal.fire({
+        title: 'Updated!',
+        text: `The ddo has been marked as ${ddo.isactive ? 'Active' : 'Inactive'}.`,
+        icon: 'success',
+        timer: 1500
       });
     }
-  }
+  });
+}
+  // Save DDO (create or update)
+ saveDDO(): void {
+     if (this.isEditMode) {
+       this.ddoService.UpdateDdo(this.ddo).subscribe({
+         next: (updatedddo) => {
+           const index = this.ddoList.findIndex((s) => s.id === updatedddo.id);
+ 
+           if (index !== -1) {
+             this.ddoList[index] = updatedddo;
+           }
+           this.displayDialog = false;
+           this.ddo = {};
+           Swal.fire({
+             icon: 'success',
+             title: 'Updated!',
+             text: 'ddo updated successfully.',
+           });
+           this.ngOnInit();
+         },
+         error: (error:any) => {
+           console.error('Error updating ddo:', error);
+           Swal.fire({
+             icon: 'error',
+             title: 'Error!',
+             text: 'Failed to update ddo. Please try again.',
+           });
+         },
+       });
+     } else {
+       this.ddoService.createDDO(this.ddo).subscribe({
+         next: (newddo) => {
+           this.ddos.push(newddo);
+           this.displayDialog = false;
+           this.ddo = {};
+           Swal.fire({
+             icon: 'success',
+             title: 'Created!',
+             text: 'ddo created successfully.',
+           });
+           this.ngOnInit();
+         },
+         error: (error) => {
+           console.error('Error creating ddo:', error);
+           Swal.fire({
+             icon: 'error',
+             title: 'Error!',
+             text: 'Failed to create ddo. Please try again.',
+           });
+         },
+       });
+     }
+   }
 }

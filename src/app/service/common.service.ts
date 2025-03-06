@@ -19,6 +19,14 @@ export class CommonService {
     return this.http.get<any[]>(`${this.apiUrl}HOA/get-hoa-details`);
   }
 
+
+
+
+//treasury
+
+
+
+
   getAllTreasuries(search:string='',filter:string=''): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}TreasuryMaster`,{
       params: {
@@ -27,6 +35,7 @@ export class CommonService {
       }
     });
   }
+
 
   getAllDepartments(search:string='',filter:string=''): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}DepartmentsMaster`,{
